@@ -1,0 +1,51 @@
+# Automated daily database backup using GitHub Actions
+# Runs every day at 2 AM UTC (9 AM Bangkok time)
+# Stores backup as GitHub artifact (90 days retention)
+
+name: Auto Database Backup
+
+on:
+  schedule:
+    # Runs at 2:00 AM UTC every day (9:00 AM Bangkok time)
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+      
+      - name: Install dependencies
+        run: bun install
+      
+      - name: Create backup
+        run: bun run db:backup
+      
+      - name: Get backup info
+        id: backup_info
+        run: |
+          BACKUP_FILE=$(ls -t data/backups/lottery_*.db | head -1)
+          BACKUP_NAME=$(basename "$BACKUP_FILE")
+          echo "filename=$BACKUP_NAME" >> $GITHUB_OUTPUT
+          echo "filepath=$BACKUP_FILE" >> $GITHUB_OUTPUT
+      
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-backup-${{ steps.backup_info.outputs.filename }}
+          path: ${{ steps.backup_info.outputs.filepath }}
+          retention-days: 90
+      
+      - name: Backup summary
+        run: |
+          echo "✓ Backup completed"
+          echo "File: ${{ steps.backup_info.outputs.filename }}"
+          ls -lh "${{ steps.backup_info.outputs.filepath }}"

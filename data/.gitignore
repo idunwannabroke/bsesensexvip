@@ -1,0 +1,4 @@
+# Ignore database files and backups from git
+# Only track the directory structure
+*.db
+backups/

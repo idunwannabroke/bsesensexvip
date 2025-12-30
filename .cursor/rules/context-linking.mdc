@@ -1,0 +1,32 @@
+---
+description: Strict rules for Context Hyper-Linking and Self-Indexing Code
+globs: *
+alwaysApply: true
+---
+# RULE: CODE CONTEXT HYPER-LINKING & SELF-INDEXING
+
+> **OBJECTIVE:** Transform the codebase into a self-documenting "Knowledge Graph".
+> **WHY:** AI context windows are limited. By explicitly indexing dependencies in comments, we ensure that any future AI session can trace logic across files instantly without "hallucinating" or missing root causes.
+
+## 1. THE "HYPER-LINK" PROTOCOL (MANDATORY)
+
+For **EVERY** function, component, hook, or significant logic block, you must include a structured comment block immediately preceding it.
+
+### Required Fields:
+1.  **[PURPOSE]:** One sentence describing *what* this does.
+2.  **[FLOW]:** Briefly describe the data/logic flow (e.g., UI -> Service -> API).
+3.  **[LINKS]:** Explicit relative paths to related files. **This is the index.**
+    - If it calls a function in another file, list that file.
+    - If it is used by another file, list that file (if known).
+
+### Template:
+```typescript
+/**
+ * [PURPOSE] Handles the final checkout transaction and inventory deduction.
+ * [FLOW] CheckoutPage -> PaymentService -> StripeAPI -> (Callback) -> InventoryService
+ * [LINKS]
+ * - Calls: @/services/payment.service.ts
+ * - Calls: @/services/inventory.service.ts
+ * - Used By: @/app/(main)/checkout/page.tsx
+ */
+export async function processCheckout(cartId: string) { ... }

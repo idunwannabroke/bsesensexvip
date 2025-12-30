@@ -1,0 +1,7 @@
+ignoredBuiltDependencies:
+  - better-sqlite3
+  - cpu-features
+  - esbuild
+  - sharp
+  - ssh2
+  - unrs-resolver

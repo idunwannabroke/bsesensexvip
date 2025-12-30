@@ -1,0 +1,51 @@
+---
+description: Strict Responsive Layout & Mobile Viewport Rules
+globs: **/*.tsx, **/*.css, **/*.ts
+alwaysApply: true
+---
+# RULE: RESPONSIVE LAYOUT & VIEWPORT MASTERY
+
+> **GOAL:** Achieve "Native-App-Like" feel on Mobile and "Robust Desktop Application" feel on Desktop.
+> **ZERO TOLERANCE:** No nested scrollbars. No blocked address bar behavior on mobile.
+
+## 1. THE "ONE SCROLLPORT" STRATEGY (GOLDEN RULE)
+
+You must define exactly **ONE** element that handles scrolling per viewport type.
+
+### 📱 Mobile (Default)
+- **Scrollport:** The `window` (body).
+- **Behavior:** The root container must allow the body to grow.
+- **Why:** This is the *only* way Mobile Chrome/Safari address bars auto-hide/show naturally.
+- **Forbidden:** `overflow-hidden` on `body` or `html` (unless a Modal/Sheet is open).
+
+### 💻 Desktop (md/lg+)
+- **Scrollport:** The `<main>` or internal content wrapper.
+- **Behavior:** The outer window/body is locked (`overflow-hidden`).
+- **Why:** Creates a fixed "App Shell" experience (Sidebar + Header stay still, content scrolls).
+
+## 2. HEIGHT & VIEWPORT UNITS
+
+1.  **NO `h-screen` on Mobile Root:**
+    - **Forbidden:** `h-screen`, `h-dvh` on the main wrapper for mobile.
+    - **Required:** Use `min-h-svh` (Small Viewport Height) to prevent content being cut off by the address bar.
+2.  **Desktop Locking:**
+    - On Desktop, you may use `h-screen` or `h-[100dvh]` to lock the shell, but only inside the `md:` breakpoint.
+
+## 3. SAFE AREA & FIXED ELEMENTS (CRITICAL)
+
+When using fixed elements (e.g., Bottom Navigation, Chat Input, Sticky Footer):
+
+1.  **Respect the Notch/Home Indicator:**
+    - Always add `pb-[env(safe-area-inset-bottom)]` to the fixed container.
+2.  **Content Compensation (The Phantom Padding):**
+    - The scrollable content area **MUST** have a bottom padding equal to:
+      `Height of Fixed Element + Safe Area + Buffer`.
+    - **Example:** If ChatInput is 80px, the message list needs `pb-32` (approx 128px) to ensure the last message isn't hidden behind the input.
+
+## 4. FLUID GRIDS (NO SQUASHING)
+
+- **Anti-Pattern:** Fixed columns like `grid-cols-2`. This squashes cards on small phones.
+- **Best Practice:** Use `auto-fill` with `minmax`.
+  ```tsx
+  // Result: Cards are at least 160px, but fill space evenly.
+  className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-4"
