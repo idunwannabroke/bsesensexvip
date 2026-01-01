@@ -17,7 +17,7 @@ export function TopLayout() {
             <div className="w-full max-w-md">
               {/* Title */}
               <div className="flex items-center justify-between mb-2">
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">BSE Sensex 30 (BSESN)</h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">BSE Sensex 30 (BSESN) VIP</h2>
                 <button className="text-gray-400 hover:text-gray-600 transition-colors">
                   <Info className="w-5 h-5" />
                 </button>

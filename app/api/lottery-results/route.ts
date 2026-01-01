@@ -10,8 +10,8 @@ import { z } from 'zod';
 const createLotteryResultSchema = z.object({
   result_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
   session_id: z.number().int().positive(),
-  top_number: z.string().regex(/^\d{3}-\d{2}$/, 'Top number must be in XXX-XX format'),
-  bottom_number: z.string().regex(/^\d{3}-\d{2}$/, 'Bottom number must be in XXX-XX format'),
+  top_number: z.string().regex(/^\d{3}$/, 'Top number must be 3 digits (XXX)'),
+  bottom_number: z.string().regex(/^\d{2}$/, 'Bottom number must be 2 digits (XX)'),
 });
 
 // GET /api/lottery-results - Fetch latest lottery results

@@ -77,9 +77,20 @@ export function StockInfoSummary() {
       const sessions = sessionsData.data.map((session: any) => {
         const result = resultsData.success ? resultsData.data.find((r: any) => r.session_id === session.id) : null;
         let up = '-', down = '-';
-        if (result && result.top_number) {
-          const parts = result.top_number.split('-');
-          if (parts.length === 2) { [up, down] = parts; } else { up = result.top_number; }
+        if (result) {
+          if (result.top_number && result.top_number.includes('-')) {
+            // Handle old combined format (XXX-XX)
+            const parts = result.top_number.split('-');
+            if (parts.length === 2) {
+              [up, down] = parts;
+            } else {
+              up = result.top_number;
+            }
+          } else {
+            // Handle new separate format
+            up = result.top_number || '-';
+            down = result.bottom_number || '-';
+          }
         }
         return { session: session.session_name, time: session.session_time, up, down };
       });
@@ -120,16 +131,16 @@ export function StockInfoSummary() {
                 <tbody>
                   {sessionData.map((item, index) => (
                     <tr key={index} className={index === 0 ? 'border-b-[2px] border-white/40' : ''}>
-                      <td className="py-3 px-3 sm:py-4 sm:px-6 text-center border-r-[2px] border-white/40 text-base sm:text-xl font-bold text-white bg-[#005a9e] whitespace-nowrap">
+                      <td className="py-3 px-2 sm:px-4 lg:px-2 xl:px-6 text-center border-r-[2px] border-white/40 text-base sm:text-xl lg:text-lg xl:text-xl font-bold text-white bg-[#005a9e] whitespace-nowrap">
                         {item.session === 'เช้า' || item.session === 'เปิดเช้า' ? 'Morning' :
                           item.session === 'บ่าย' || item.session === 'เปิดบ่าย' ? 'Afternoon' :
                             item.session === 'ปิดเที่ยง' ? 'Noon Close' :
                               item.session === 'ปิดเย็น' ? 'Evening Close' : item.session}
                       </td>
-                      <td className="py-3 px-2 sm:py-4 sm:px-3 text-center border-r-[2px] border-white/40 text-sm sm:text-lg text-white/90 font-medium">Top</td>
-                      <td className="py-3 px-3 sm:py-4 sm:px-6 text-center border-r-[2px] border-white/40 text-2xl sm:text-4xl font-black text-white tabular-nums tracking-tighter">{item.up}</td>
-                      <td className="py-3 px-2 sm:py-4 sm:px-3 text-center border-r-[2px] border-white/40 text-sm sm:text-lg text-white/90 font-medium">Bottom</td>
-                      <td className="py-3 px-3 sm:py-4 sm:px-6 text-center text-2xl sm:text-4xl font-black text-white tabular-nums tracking-tighter">{item.down}</td>
+                      <td className="py-3 px-1 sm:px-3 lg:px-1 xl:px-3 text-center border-r-[2px] border-white/40 text-sm sm:text-lg lg:text-base xl:text-lg text-white/90 font-medium">Top</td>
+                      <td className="py-3 px-2 sm:px-4 lg:px-2 xl:px-6 text-center border-r-[2px] border-white/40 text-2xl sm:text-4xl lg:text-3xl xl:text-4xl font-black text-white tabular-nums tracking-tighter">{item.up}</td>
+                      <td className="py-3 px-1 sm:px-3 lg:px-1 xl:px-3 text-center border-r-[2px] border-white/40 text-sm sm:text-lg lg:text-base xl:text-lg text-white/90 font-medium">Bottom</td>
+                      <td className="py-3 px-2 sm:px-4 lg:px-2 xl:px-6 text-center text-2xl sm:text-4xl lg:text-3xl xl:text-4xl font-black text-white tabular-nums tracking-tighter">{item.down}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -243,7 +254,7 @@ const ChartComponent = memo(function ChartComponent({ marketIndex }: { marketInd
       <div className="flex-1 bg-white relative flex flex-col p-2 sm:p-3 min-h-0">
         <div className="mb-1 sm:mb-2 flex-shrink-0">
           <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-3">
-            <h2 className="text-lg sm:text-xl font-bold text-gray-800">BSE Sensex 30</h2>
+            <h2 className="text-lg sm:text-xl font-bold text-gray-800">BSE Sensex 30 VIP</h2>
             <div className="flex items-baseline gap-2 font-bold">
               <span className="text-xl sm:text-2xl tabular-nums font-bold tracking-tight text-gray-900">{marketIndex.current_value}</span>
               <span className={`text-xs sm:text-sm tabular-nums font-medium flex items-center gap-1 ${marketIndex.is_positive ? 'text-green-600' : 'text-red-600'}`}>

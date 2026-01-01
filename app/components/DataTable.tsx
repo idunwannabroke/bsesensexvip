@@ -28,6 +28,10 @@ function ResultRow({ row, sessions }: { row: GroupedResult; sessions: MarketSess
           if (parts.length === 2) {
             top = parts[0];
             bottom = parts[1];
+          } else if (parts.length === 4) {
+            // Handle corrupted old data (XXX-XX-XXX-XX)
+            top = parts[0];
+            bottom = parts[1];
           } else {
             top = resultStr;
           }
@@ -124,7 +128,7 @@ export function DataTable() {
         <div className="max-w-4xl mx-auto border-[2px] border-[#005a9e] rounded-xl overflow-hidden shadow-lg">
           {/* Header Title */}
           <div className="bg-[#005a9e] py-3 px-4">
-            <h2 className="text-lg font-bold text-white uppercase tracking-wide">Result History</h2>
+            <h2 className="text-lg font-bold text-white uppercase tracking-wide">Result History VIP</h2>
           </div>
 
           <div className="overflow-x-auto no-scrollbar">

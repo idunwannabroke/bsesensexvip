@@ -16,8 +16,8 @@ export interface LotteryResult {
   id: number;
   result_date: string; // Format: YYYY-MM-DD
   session_id: number;
-  top_number: string; // Format: XXX-XX (e.g., "139-92")
-  bottom_number: string; // Format: XXX-XX
+  top_number: string; // Format: XXX (e.g., "139")
+  bottom_number: string; // Format: XX (e.g., "92")
   created_at: string;
   updated_at: string;
 }

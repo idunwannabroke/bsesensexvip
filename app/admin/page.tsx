@@ -165,8 +165,8 @@ export default function AdminPage() {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              top_number: combinedNumber,
-              bottom_number: combinedNumber,
+              top_number: result.topThree,
+              bottom_number: result.bottomTwo,
             }),
           });
           if (response.ok) {
@@ -184,8 +184,8 @@ export default function AdminPage() {
             body: JSON.stringify({
               result_date: selectedDate,
               session_id: session.id,
-              top_number: combinedNumber,
-              bottom_number: combinedNumber,
+              top_number: result.topThree,
+              bottom_number: result.bottomTwo,
             }),
           });
           if (response.ok) {

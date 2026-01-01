@@ -2,11 +2,9 @@
 // Renders all major sections: header, ticker, stock info, chart, news, footer
 // Links to: All components in @/app/components/
 import { Header } from '@/app/components/Header';
-import { TickerBar } from '@/app/components/TickerBar';
 import { StockInfo } from '@/app/components/StockInfo';
 import { DataTable } from '@/app/components/DataTable';
 import { AppPromotion } from '@/app/components/AppPromotion';
-import { Footer } from '@/app/components/Footer';
 import { TopLayout } from '@/app/components/TopLayout';
 
 export default function Home() {
@@ -14,9 +12,6 @@ export default function Home() {
     <div className="min-h-svh bg-white">
       {/* Header */}
       <Header />
-
-      {/* Ticker Bar */}
-      <TickerBar />
 
       {/* Main Content Area - Order controlled by CSS for responsive layout */}
       <div className="flex flex-col">
@@ -38,9 +33,6 @@ export default function Home() {
 
       {/* App Promotion */}
       <AppPromotion />
-
-      {/* Footer */}
-      <Footer />
     </div>
   );
 }
