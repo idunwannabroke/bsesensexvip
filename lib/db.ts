@@ -32,9 +32,13 @@ export function initializeDatabase() {
       is_market_open INTEGER NOT NULL DEFAULT 0,
       display_order INTEGER NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(session_name, session_time)
     )
   `);
+
+  // Ensure unique index for existing databases
+  db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_market_sessions_name_time ON market_sessions(session_name, session_time)`);
 
   // Lottery results table
   // Stores daily lottery results for each session (บน/ล่าง)
@@ -81,7 +85,7 @@ export function initializeDatabase() {
   if (sessionCount.count === 0) {
     // Insert default market sessions
     const insertSession = db.prepare(`
-      INSERT INTO market_sessions (session_name, session_time, is_market_open, display_order)
+      INSERT OR IGNORE INTO market_sessions (session_name, session_time, is_market_open, display_order)
       VALUES (?, ?, ?, ?)
     `);
 

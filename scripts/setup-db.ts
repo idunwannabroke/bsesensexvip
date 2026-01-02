@@ -23,7 +23,8 @@ async function main() {
         is_market_open INTEGER NOT NULL DEFAULT 0,
         display_order INTEGER NOT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(session_name, session_time)
       )
     `);
 
@@ -76,7 +77,7 @@ async function main() {
 
     if (sessionCount.count === 0) {
       const insertSession = db.prepare(`
-        INSERT INTO market_sessions (session_name, session_time, is_market_open, display_order)
+        INSERT OR IGNORE INTO market_sessions (session_name, session_time, is_market_open, display_order)
         VALUES (?, ?, ?, ?)
       `);
 
