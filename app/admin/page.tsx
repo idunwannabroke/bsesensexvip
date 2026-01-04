@@ -80,9 +80,11 @@ export default function AdminPage() {
         sessions.forEach((session) => {
           const result = data.data.find((r: LotteryResultWithSession) => r.session_id === session.id);
           if (result) {
-            // Split XXX-XX into topThree (XXX) and bottomTwo (XX)
-            const [topThree, bottomTwo] = result.top_number.split('-');
-            loadedResults[session.id] = { topThree: topThree || '', bottomTwo: bottomTwo || '' };
+            // Use top_number and bottom_number directly (they're already separate)
+            loadedResults[session.id] = {
+              topThree: result.top_number || '',
+              bottomTwo: result.bottom_number || ''
+            };
           } else {
             loadedResults[session.id] = { topThree: '', bottomTwo: '' };
           }
@@ -112,28 +114,6 @@ export default function AdminPage() {
 
   // Save results
   const handleSave = async () => {
-    // Validation: Check if at least one result is filled
-    const hasAnyData = sessions.some(session => {
-      const result = results[session.id];
-      return result?.topThree || result?.bottomTwo;
-    });
-
-    if (!hasAnyData) {
-      toast.error('กรุณากรอกข้อมูลอย่างน้อย 1 รอบ');
-      return;
-    }
-
-    // Validation: Check for incomplete data
-    const hasIncompleteData = sessions.some(session => {
-      const result = results[session.id];
-      return (result?.topThree && !result?.bottomTwo) || (!result?.topThree && result?.bottomTwo);
-    });
-
-    if (hasIncompleteData) {
-      toast.error('กรุณากรอกข้อมูลให้ครบทั้ง บน และ ล่าง');
-      return;
-    }
-
     try {
       setIsSaving(true);
       let successCount = 0;
@@ -142,22 +122,44 @@ export default function AdminPage() {
 
       for (const session of sessions) {
         const result = results[session.id];
-        if (!result?.topThree || !result?.bottomTwo) continue;
-
-        // Validate format: topThree = 3 digits, bottomTwo = 2 digits
-        if (!/^\d{3}$/.test(result.topThree) || !/^\d{2}$/.test(result.bottomTwo)) {
-          errorCount++;
-          errors.push(`${session.session_name}: รูปแบบไม่ถูกต้อง (ต้องเป็น 3 ตัว และ 2 ตัว)`);
-          continue;
-        }
-
-        // Combine into XXX-XX format
-        const combinedNumber = `${result.topThree}-${result.bottomTwo}`;
+        const topThree = result?.topThree || '';
+        const bottomTwo = result?.bottomTwo || '';
 
         // Check if result exists
         const checkResponse = await fetch(`/api/lottery-results/by-date?date=${selectedDate}`);
         const checkData = await checkResponse.json();
         const existing = checkData.data?.find((r: LotteryResultWithSession) => r.session_id === session.id);
+
+        // If both empty
+        if (!topThree && !bottomTwo) {
+          // If existing record, delete it
+          if (existing) {
+            const response = await fetch(`/api/lottery-results/${existing.id}`, {
+              method: 'DELETE',
+            });
+            if (response.ok) {
+              successCount++;
+            } else {
+              errorCount++;
+              const data = await response.json();
+              errors.push(`${session.session_name}: ${data.error || 'ลบไม่สำเร็จ'}`);
+            }
+          }
+          // If no existing, just skip
+          continue;
+        }
+
+        // Validate format if provided: topThree = 3 digits, bottomTwo = 2 digits
+        if (topThree && !/^\d{3}$/.test(topThree)) {
+          errorCount++;
+          errors.push(`${session.session_name}: บนต้องเป็น 3 ตัว`);
+          continue;
+        }
+        if (bottomTwo && !/^\d{2}$/.test(bottomTwo)) {
+          errorCount++;
+          errors.push(`${session.session_name}: ล่างต้องเป็น 2 ตัว`);
+          continue;
+        }
 
         if (existing) {
           // Update existing
@@ -165,8 +167,8 @@ export default function AdminPage() {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              top_number: result.topThree,
-              bottom_number: result.bottomTwo,
+              top_number: topThree,
+              bottom_number: bottomTwo,
             }),
           });
           if (response.ok) {
@@ -184,8 +186,8 @@ export default function AdminPage() {
             body: JSON.stringify({
               result_date: selectedDate,
               session_id: session.id,
-              top_number: result.topThree,
-              bottom_number: result.bottomTwo,
+              top_number: topThree,
+              bottom_number: bottomTwo,
             }),
           });
           if (response.ok) {

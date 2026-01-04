@@ -8,8 +8,12 @@ import { z } from 'zod';
 
 // Validation schema for updating lottery result
 const updateLotteryResultSchema = z.object({
-  top_number: z.string().regex(/^\d{3}$/, 'Top number must be 3 digits (XXX)').optional(),
-  bottom_number: z.string().regex(/^\d{2}$/, 'Bottom number must be 2 digits (XX)').optional(),
+  top_number: z.string().refine(val => val === '' || /^\d{3}$/.test(val), {
+    message: 'Top number must be empty or 3 digits (XXX)'
+  }).optional(),
+  bottom_number: z.string().refine(val => val === '' || /^\d{2}$/.test(val), {
+    message: 'Bottom number must be empty or 2 digits (XX)'
+  }).optional(),
 });
 
 // GET /api/lottery-results/[id] - Fetch single lottery result
@@ -57,7 +61,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    
+
     // Validate request body
     const validatedData = updateLotteryResultSchema.parse(body);
 
@@ -128,7 +132,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    
+
     // Check if result exists
     const existing = db.prepare('SELECT id FROM lottery_results WHERE id = ?').get(id);
     if (!existing) {

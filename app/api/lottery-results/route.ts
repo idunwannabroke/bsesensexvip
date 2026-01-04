@@ -10,9 +10,14 @@ import { z } from 'zod';
 const createLotteryResultSchema = z.object({
   result_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
   session_id: z.number().int().positive(),
-  top_number: z.string().regex(/^\d{3}$/, 'Top number must be 3 digits (XXX)'),
-  bottom_number: z.string().regex(/^\d{2}$/, 'Bottom number must be 2 digits (XX)'),
+  top_number: z.string().refine(val => val === '' || /^\d{3}$/.test(val), {
+    message: 'Top number must be empty or 3 digits (XXX)'
+  }),
+  bottom_number: z.string().refine(val => val === '' || /^\d{2}$/.test(val), {
+    message: 'Bottom number must be empty or 2 digits (XX)'
+  }),
 });
+
 
 // GET /api/lottery-results - Fetch latest lottery results
 // Query params: limit (default: 15)
@@ -61,7 +66,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
+
     // Validate request body
     const validatedData = createLotteryResultSchema.parse(body);
 
